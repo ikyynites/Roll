@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <sstream>
 #include <conio.h>
 #include <cstdint>
 
@@ -50,7 +51,41 @@ void footer(const uint8_t& depth, const std::string& footer, const char* const& 
 	std::cout << Erase::LINE;
 
 	short padding = width / 2 - footer.length() / 2;
-	std::cout <<  std::string(padding, ' ') << colour << footer << Style::RESET << std::endl;
+	std::cout << std::string(padding, ' ') << colour << footer << Style::RESET << std::endl;
+}
+
+/**
+* Prints out a list of options along the bottom of the console.
+* @param options List of options to be printed.
+*/
+void options(const std::vector<std::string>& options) {
+	setCursorPosition(0, 0);
+	for (int i = 0; i < height - 4; i++) {
+		std::cout << std::endl;
+	}
+	std::cout << Erase::LINE;
+
+	std::ostringstream outputStream;
+	std::ostringstream formattedStream;
+	short index = 0;
+
+	for (const std::string& option : options) {
+		outputStream << "[" + std::to_string(index) + "] " + option;
+		formattedStream << Fore::YELLOW + "[" + std::to_string(index) + "]" + Style::RESET + " " + option;
+		index++;
+
+		if (index != options.size()) {
+			outputStream << " | ";
+			formattedStream << Fore::BLACK + " | " + Style::RESET;
+		}
+	}
+
+	std::string output = outputStream.str();
+	std::string formatted = formattedStream.str();
+
+	short padding = width / 2 - output.length() / 2;
+
+	std::cout << std::string(padding, ' ') << formatted << Style::RESET << std::endl;
 }
 
 /**
