@@ -4,7 +4,8 @@
 /**
  * Holds ANSI codes to modify foreground (text) colour.
  */
-namespace Fore {
+namespace Fore
+{
 	constexpr const char* DEFAULT = "\x1b[39m";
 	constexpr const char* WHITE = "\x1b[97m";
 	constexpr const char* BLACK = "\x1b[90m";
@@ -19,7 +20,8 @@ namespace Fore {
 /**
  * Holds ANSI codes to modify background colour.
  */
-namespace Back {
+namespace Back
+{
 	constexpr const char* DEFAULT = "\x1b[49m";
 	constexpr const char* WHITE = "\x1b[107m";
 	constexpr const char* BLACK = "\x1b[100m";
@@ -34,7 +36,8 @@ namespace Back {
 /**
  * Holds ANSI codes to modify style of text printed to console.
  */
-namespace Style {
+namespace Style
+{
 	constexpr const char* RESET = "\x1b[0m";
 	constexpr const char* BOLD = "\x1b[1m";
 	constexpr const char* DIM = "\x1b[2m";
@@ -50,7 +53,8 @@ namespace Style {
 /**
  * Holds ANSI codes to erase text in console.
  */
-namespace Erase {
+namespace Erase
+{
 	constexpr const char* LINE = "\x1b[2K";
 }
 
