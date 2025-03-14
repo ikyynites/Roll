@@ -96,6 +96,9 @@ int main()
 		if (key == ESC) {
 			break;
 		}
+		if (key == DIGIT + 1) {
+			break;
+		}
 	}
 
 	return 0;
