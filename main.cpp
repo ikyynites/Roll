@@ -17,8 +17,7 @@ short height;
 enum Keycodes {
 	ENTER = 13,
 	ESC = 27,
-	DIGIT = 48,
-	// use: DIGIT + n; where n is the digit to be pressed (no offset = 0)
+	DIGIT = 48, // use: DIGIT + n; where n is the digit to be pressed (no offset = 0)
 };
 
 /**
@@ -139,6 +138,8 @@ int main()
 
 	std::vector<std::string> options = {"roll", "new list", "select list"};
 
+	std::vector<std::string> names = {"callum", "miesha", "olivia", "eleanor"};
+
 	// main loop
 	while (true) {
 		Display::header(2, "welcome to roll.", Fore::YELLOW);
@@ -151,9 +152,15 @@ int main()
 		if (key == ESC) {
 			break;
 		}
-		if (key == DIGIT + 1) {
+		if (key == DIGIT) { // roll
 			break;
 		}
+		if (key == DIGIT + 1) { // new list
+			break;
+		}
+		if (key == DIGIT + 2) { // select list
+            break;
+        }
 	}
 
 	return 0;
