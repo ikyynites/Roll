@@ -53,6 +53,24 @@ void footer(const uint8_t& depth, const std::string& footer, const char* const& 
 	std::cout <<  std::string(padding, ' ') << colour << footer << Style::RESET << std::endl;
 }
 
+/**
+ * Prints information about the program along the bottom row of the console.
+ */
+void info()
+{
+	setCursorPosition(0, 0);
+	for (int i = 0; i < height; i++) {
+        std::cout << std::endl;
+    }
+	std::cout << Erase::LINE;
+
+	std::string esc = "press ESC to exit";
+	std::string version = "C++ V" + std::to_string(__cplusplus);
+	short padding = width - (esc.length() + version.length());
+
+	std::cout << Fore::BLACK << esc << std::string(padding, ' ') << version << Style::RESET;
+}
+
 int main()
 {
 	// configure console
@@ -67,12 +85,11 @@ int main()
 		return 1;
 	}
 
-	std::vector<std::string> names = {"Alice", "Bob", "Charlie", "David", "Emma",};
-
 	// main loop
 	while (true) {
 		header(2, "welcome to roll.", Fore::YELLOW);
 		header(3, "by callum wakefield", Fore::BLACK);
+		info();
 
 		int key = _getch();
 
