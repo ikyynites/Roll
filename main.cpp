@@ -71,7 +71,7 @@ int main()
 
 	// main loop
 	while (true) {
-		header(2, "roll", Fore::YELLOW);
+		header(2, "welcome to roll.", Fore::YELLOW);
 		header(3, "by callum wakefield", Fore::BLACK);
 
 		int key = _getch();
