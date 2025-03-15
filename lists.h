@@ -11,6 +11,8 @@ public:
 	static bool save(const char* filename, const std::vector<std::string>& list);
 
 	static bool load(const char* filename, std::vector<std::string>& list);
+
+	static bool list();
 };
 
 #endif //LISTS_H

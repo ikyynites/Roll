@@ -12,6 +12,9 @@
 // global variables
 short width;
 short height;
+short viewportStart = 0;
+short viewportDepth = 0;
+short selectedOption;
 
 // keycodes for user input
 enum Keycodes {
@@ -33,10 +36,7 @@ namespace Display
 	 */
 	void header(const uint8_t& depth, const std::string& header, const char* const& colour)
 	{
-		setCursorPosition(0, 0);
-		for (int i = 0; i < depth; i++) {
-			std::cout << std::endl;
-		}
+		setCursorPosition(0, depth);
 		std::cout << Erase::LINE;
 
 		short padding = width / 2 - header.length() / 2;
@@ -51,10 +51,7 @@ namespace Display
 	 */
 	void footer(const uint8_t& depth, const std::string& footer, const char* const& colour = "")
 	{
-		setCursorPosition(0, 0);
-		for (int i = 0; i < height - depth; i++) {
-			std::cout << std::endl;
-		}
+		setCursorPosition(0, depth - height);
 		std::cout << Erase::LINE;
 
 		short padding = width / 2 - footer.length() / 2;
@@ -63,9 +60,10 @@ namespace Display
 
 	/**
 	 * Prints out a list of options along the bottom of the console.
+	 * @param depth How many lines from the bottom the text should be printed.
 	 * @param options List of options to be printed.
 	 */
-	void options(const std::vector<std::string>& options)
+	void options(const uint8_t& depth, const std::vector<std::string>& options)
 	{
 		if (options.size() >= 9) {
 			std::cerr << "Too many... options? Rethink what you're doing." << std::endl;
@@ -73,10 +71,7 @@ namespace Display
 			return;
 		}
 
-		setCursorPosition(0, 0);
-		for (int i = 0; i < height - 4; i++) {
-			std::cout << std::endl;
-		}
+		setCursorPosition(0, height - depth);
 		std::cout << Erase::LINE;
 
 		std::ostringstream outputStream;
@@ -86,7 +81,7 @@ namespace Display
 		for (const std::string& option : options) {
 			outputStream << "[" << std::to_string(index) << "] " << option;
 			formattedStream << Fore::YELLOW << "[" << Style::UNDER << std::to_string(index) << Style::RESET <<
-			Fore::YELLOW << "]" << Style::RESET << " " << option;
+				Fore::YELLOW << "]" << Style::RESET << " " << option;
 			index++;
 
 			if (index != options.size()) {
@@ -108,10 +103,7 @@ namespace Display
 	 */
 	void info()
 	{
-		setCursorPosition(0, 0);
-		for (int i = 0; i < height; i++) {
-			std::cout << std::endl;
-		}
+		setCursorPosition(0, height - 1);
 		std::cout << Erase::LINE;
 
 		std::string esc = " press ESC to exit";
@@ -119,6 +111,27 @@ namespace Display
 		short padding = width - (esc.length() + version.length());
 
 		std::cout << Fore::BLACK << esc << std::string(padding, ' ') << version << Style::RESET;
+	}
+
+	/**
+	 * Cleans blank lines in the display.
+	 */
+	void clean()
+	{
+		setCursorPosition(0, 0);
+		std::cout << Erase::LINE;
+
+		setCursorPosition(0, 3);
+		std::cout << Erase::LINE;
+
+		setCursorPosition(0, 5);
+		std::cout << Erase::LINE;
+
+		setCursorPosition(0, height - 2);
+		std::cout << Erase::LINE;
+
+		setCursorPosition(0, height - 5);
+		std::cout << Erase::LINE;
 	}
 }
 
@@ -129,6 +142,13 @@ int main()
 		std::cerr << "Failed to configure console." << std::endl;
 		return 1;
 	}
+	if (height < 21) {
+		std::cerr << "Console height is too small." << std::endl;
+        return 1;
+	}
+
+	viewportStart = 6;
+	viewportDepth = height - 5 - viewportStart;
 
 	// initialise classes
 	if (!Lists::init()) {
@@ -137,15 +157,17 @@ int main()
 	}
 
 	std::vector<std::string> options = {"roll", "new list", "select list"};
-
 	std::vector<std::string> names = {"callum", "miesha", "olivia", "eleanor"};
 
 	// main loop
 	while (true) {
-		Display::header(2, "welcome to roll.", Fore::YELLOW);
-		Display::header(3, "by callum wakefield", Fore::BLACK);
+		Display::header(1, "welcome to roll.", Fore::YELLOW);
+		Display::header(2, "by callum wakefield", Fore::BLACK);
 		Display::info();
-		Display::options(options);
+		Display::options(4, options);
+
+		Display::clean();
+		clearViewport();
 
 		int key = _getch();
 
@@ -153,13 +175,14 @@ int main()
 			break;
 		}
 		if (key == DIGIT) { // roll
-			break;
+			continue;
 		}
 		if (key == DIGIT + 1) { // new list
-			break;
+			continue;
 		}
 		if (key == DIGIT + 2) { // select list
-            break;
+            Lists::list();
+			_getch();
         }
 	}
 

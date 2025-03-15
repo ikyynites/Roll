@@ -3,6 +3,9 @@
 
 #include <windows.h>
 
+extern short viewportStart;
+extern short viewportDepth;
+
 /**
  * Sets the cursor position to a specified coordinate in the console.
  * @param column The column to set the cursor to.
@@ -44,6 +47,34 @@ static bool clearScreen()
 	if (!SetConsoleCursorPosition(hConsole, coordScreen)) return false;
 
 	return true;
+}
+
+/**
+ * Clears the viewport area of the console screen by filling it with spaces and resetting cursor position.
+ * @return true if successful, false otherwise
+ */
+static bool clearViewport()
+{
+	if (viewportStart == 0 && viewportDepth == 0) return false;
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hConsole == INVALID_HANDLE_VALUE) return false;
+
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	if (!GetConsoleScreenBufferInfo(hConsole, &csbi)) return false;
+
+	COORD coordScreen = {static_cast<short>(0), viewportStart};
+	DWORD dwConSize = csbi.dwSize.X * viewportDepth;
+	DWORD cCharsWritten;
+
+	if (!FillConsoleOutputCharacter(hConsole, ' ', dwConSize, coordScreen, &cCharsWritten)) return false;
+
+	if (!FillConsoleOutputAttribute(hConsole, csbi.wAttributes, dwConSize, coordScreen, &cCharsWritten)) return false;
+
+	if (!SetConsoleCursorPosition(hConsole, coordScreen)) return false;
+
+	return true;
+
 }
 
 /**
