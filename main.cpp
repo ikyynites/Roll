@@ -14,7 +14,8 @@ short width;
 short height;
 short viewportStart = 0;
 short viewportDepth = 0;
-short selectedOption;
+std::string selectedList = "NONE";
+std::vector<std::string> selectedListContents;
 
 // keycodes for user input
 enum Keycodes {
@@ -34,7 +35,7 @@ namespace Display
 	 * @param header The text to be printed.
 	 * @param colour Optional colour of the text.
 	 */
-	void header(const uint8_t& depth, const std::string& header, const char* const& colour)
+	void header(const uint8_t& depth, const std::string& header, const char* const& colour = "")
 	{
 		setCursorPosition(0, depth);
 		std::cout << Erase::LINE;
@@ -96,6 +97,20 @@ namespace Display
 		short padding = width / 2 - output.length() / 2;
 
 		std::cout << std::string(padding, ' ') << formatted << Style::RESET << std::endl;
+	}
+
+	/**
+	 * Prints the currently selected list to the top of the console.
+	 */
+	void currentList()
+	{
+		setCursorPosition(0, 4);
+		std::cout << Erase::LINE;
+
+		short padding = width / 2 - (selectedList.length() + 15) / 2;
+
+		std::cout << std::string(padding, ' ') << Fore::BLUE << "selected list:" << " " <<
+			(selectedList == "NONE" ? Fore::BLACK : Fore::DEFAULT) << selectedList << Style::RESET << std::endl;
 	}
 
 	/**
@@ -163,6 +178,7 @@ int main()
 	while (true) {
 		Display::header(1, "welcome to roll.", Fore::YELLOW);
 		Display::header(2, "by callum wakefield", Fore::BLACK);
+		Display::currentList();
 		Display::info();
 		Display::options(4, options);
 
