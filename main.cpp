@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 #include <conio.h>
 #include <cstdint>
 
@@ -198,7 +199,29 @@ int main()
 		}
 		if (key == DIGIT + 2) { // select list
             Lists::list();
-			_getch();
+
+			std::filesystem::path listsPath("./Lists");
+			short padding = 8;
+
+			setCursorPosition(0, height - 4);
+			std::cout << Erase::LINE << std::endl << Erase::LINE << std::endl;
+
+			setCursorPosition(padding, height - 4);
+
+			std::string input;
+			std::cout << "list: ";
+
+			std::getline(std::cin, input);
+
+			while (!std::filesystem::exists(listsPath / (input + ".bin"))) {
+				std::cout << Fore::RED << "list \"" << input << "\" does not exist." << Style::RESET << std::endl;
+				std::cout << Cursor::PREV << Erase::LINE << std::string(padding, ' ') << "list: ";
+
+				std::getline(std::cin, input);
+			}
+
+			selectedList = input;
+			Lists::load((listsPath / (input + ".bin")).string().c_str(), selectedListContents);
         }
 	}
 

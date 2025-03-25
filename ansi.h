@@ -58,4 +58,12 @@ namespace Erase
 	constexpr const char* LINE = "\x1b[2K";
 }
 
+/**
+ * Holds ANSI codes to move cursor in console.
+ */
+namespace Cursor
+{
+	constexpr const char* PREV = "\x1b[1F";
+}
+
 #endif //ANSI_H
