@@ -4,7 +4,10 @@
 #include <sstream>
 #include <filesystem>
 #include <conio.h>
+#include <random>
 #include <cstdint>
+#include <thread>
+#include <windows.h>
 
 #include "ansi.h"
 #include "lists.h"
@@ -17,6 +20,8 @@ short viewportStart = 0;
 short viewportDepth = 0;
 std::string selectedList = "NONE";
 std::vector<std::string> selectedListContents;
+
+std::mt19937 generator(std::random_device{}());
 
 // keycodes for user input
 enum Keycodes {
@@ -143,6 +148,9 @@ namespace Display
 		setCursorPosition(0, 5);
 		std::cout << Erase::LINE;
 
+		setCursorPosition(0, height - 3);
+		std::cout << Erase::LINE;
+
 		setCursorPosition(0, height - 2);
 		std::cout << Erase::LINE;
 
@@ -151,10 +159,66 @@ namespace Display
 	}
 }
 
+void roll()
+{
+	short centerWidth = width / 2;
+	short viewportCenter = viewportStart + (short)(viewportDepth / 2);
+
+	if (selectedList == "NONE") {
+		setCursorPosition(centerWidth - 13, viewportCenter);
+		std::cout << Erase::LINE << Fore::RED << "please select a list first!" << Style::RESET;
+
+		return;
+	}
+
+	std::size_t index = 0;
+	std::size_t length = selectedListContents.size();
+	std::uniform_int_distribution<std::size_t> distribution(0, length - 1);
+
+	std::size_t randomIndex = distribution(generator);
+	std::size_t iterations = randomIndex + (length * 5);
+
+	for (int i = 0; i < iterations; i++) {
+		PlaySound("./click.wav", nullptr, SND_FILENAME | SND_ASYNC);
+
+		index = (index + 1) % length;
+		std::size_t prevIndex = (index - 1 + length) % length;
+		std::size_t nextIndex = (index + 1) % length;
+
+		setCursorPosition(centerWidth - selectedListContents[prevIndex].length() / 2, viewportCenter - 2);
+		std::cout << Erase::LINE << Fore::BLACK << selectedListContents[prevIndex] << Style::RESET;
+
+		setCursorPosition(centerWidth - selectedListContents[nextIndex].length() / 2, viewportCenter + 2);
+		std::cout << Erase::LINE << Fore::BLACK << selectedListContents[nextIndex] << Style::RESET;
+
+		setCursorPosition(centerWidth - selectedListContents[index].length() / 2 - 3, viewportCenter);
+		std::cout << Erase::LINE << " > " << selectedListContents[index] << " < ";
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(100 + i * 30));
+	}
+
+	PlaySound("./ding.wav", nullptr, SND_FILENAME | SND_ASYNC);
+
+	setCursorPosition(centerWidth - 9, viewportCenter + 5);
+	std::cout << Erase::LINE << Fore::BLACK << "(press 'F' to continue)" << Style::RESET;
+
+	while (!(GetKeyState('F') & 0x8000)) {
+		setCursorPosition(centerWidth - selectedListContents[index].length() / 2 - 3, viewportCenter);
+		std::cout << Erase::LINE << " > " << selectedListContents[index] << " < ";
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+		setCursorPosition(centerWidth - selectedListContents[index].length() / 2 - 3, viewportCenter);
+		std::cout << Erase::LINE << ">  " << selectedListContents[index] << "  <";
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(150));
+	}
+}
+
 int main()
 {
 	// configure console
-	if (!(setTitle("Roll") && lockSize(width, height) && hideCursor() && enableAnsi() && clearScreen())) {
+	if (!(setTitle("Roll") && lockSize(width, height) && setCursor(false) && enableAnsi() && clearScreen())) {
 		std::cerr << "Failed to configure console." << std::endl;
 		return 1;
 	}
@@ -192,6 +256,8 @@ int main()
 			break;
 		}
 		if (key == DIGIT) { // roll
+			roll();
+
 			continue;
 		}
 		if (key == DIGIT + 1) { // new list
@@ -211,13 +277,17 @@ int main()
 			std::string input;
 			std::cout << "list: ";
 
+			setCursor(true);
 			std::getline(std::cin, input);
+			setCursor(false);
 
 			while (!std::filesystem::exists(listsPath / (input + ".bin"))) {
-				std::cout << Fore::RED << "list \"" << input << "\" does not exist." << Style::RESET << std::endl;
+				std::cout << Erase::LINE << std::string(padding, ' ') << Fore::RED << "list \"" << input << "\" does not exist." << Style::RESET;
 				std::cout << Cursor::PREV << Erase::LINE << std::string(padding, ' ') << "list: ";
 
+				setCursor(true);
 				std::getline(std::cin, input);
+				setCursor(false);
 			}
 
 			selectedList = input;
