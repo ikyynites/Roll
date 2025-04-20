@@ -111,17 +111,18 @@ static bool setTitle(const char* title)
 }
 
 /**
- * Hides the console cursor.
+ * Set visibility of the console cursor.
+ * @param visibility true to show the cursor, false to hide it.
  * @return true if successful, false otherwise
  */
-static bool hideCursor()
+static bool setCursor(const bool& visibility)
 {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (hConsole == INVALID_HANDLE_VALUE) return false;
 
 	CONSOLE_CURSOR_INFO cursorInfo;
 	if (!GetConsoleCursorInfo(hConsole, &cursorInfo)) return false;
-	cursorInfo.bVisible = false;
+	cursorInfo.bVisible = visibility;
 
 	if (!SetConsoleCursorInfo(hConsole, &cursorInfo)) return false;
 
